@@ -1,0 +1,69 @@
+setcps (83/60/4)
+
+all $ (|+ n (-2)).(|* gain 1.1)
+
+do
+  resetCyclesTo (4-0.05)
+  let
+    bpm = 83
+  d1
+    $ (|+ n 2)
+    $ swingBy (1/25) 8
+    $ mix ((|+ n 12).(|* gain 0.5).(# size 0.8))
+    $ sometimesBy 0.4 (jux (rev))
+    $ n "[<<c3,g3> <f2,c3>> [e4 d5]] [<<c3,g3> <f2,c3>> g4 ~g5] [~ d4 <~ <f2,c3>> g4] [~<g5,<c3,g2>> ~[b4|d5|e5|f5|b4]]"
+    # s "SinOscSynthBend"
+    # sustain ((*0.8).(*(100/bpm)) <$> "[1.5 1] 1  1 1  1 1.5  1.2 1")
+    # room 0.4 # size 0.5
+    # pingpongt (3/16) # pingpongfb 0.35 # pingpong 0.3
+    # hpf "[150 350] [150 350 350 350] [350 350 150 350] [150 350]"
+    # gain (range 0.62 0.66 (slow 3 $ rand))
+    # pan (range 0.3 0.7 (slow 3 $ rand))
+    # vibratoFreq 8 # vibratoDepth 0.1
+  d2
+    $ mix ((|- n 12).(|* gain 0.5))
+    $ (|* gain 0.57)
+    $ (# freeverb 0.8).(# size 0.9)
+    $ (# sustain 10)
+    $ ((# vibratoFreq 3.5).(# vibratoDepth 0.3))
+    $ ((# tremolorate 3.5).(# tremolodepth 0.1))
+    $ ((# lpf 1000).(# hpf 110))
+    $ when (==4) (const $ s "FastSinSynth ~ ~ FastSinSynth" # n "a6 <fs5,e4>")
+    $ when (==5) (const $ s "~!2 [~FastSinSynth] FastSinSynth" # n "[df6 d6]*4" # gain 0.9)
+    $ when (==6) (const $ s "~ FastSinSynth ~!2" # n "a5")
+    $ when (==7) (const $ s "~ ~ FastSinSynth FastSinSynth*2" # n "~ ~ fs6 [a6 e6]" # gain 0.9)
+    $ when (==8) (const $ s "~ FastSinSynth" # n "<fs5,e4>")
+    $ when (==9) (const $ s "~!2 [~FastSinSynth] FastSinSynth" # n "[df6 d6]*4" # gain 0.9)
+    $ when (==10) (const $ s "~ FastSinSynth" # n "d6 a5" # gain 0.9)
+    $ when (==11) (const $ s "[~FastSinSynth] ~!3" # n "b5" # gain 0.9)
+    $ s "FastSinSynth" # n "~"
+  d3
+    $ fast 16
+    $ when (<=64) (|* gain 0)
+    $ when ((flip elem [14,15]).(flip mod 16)) (|* gain 0)
+    $ when ((/=0).(flip mod 3)) (|* gain 0)
+    $ s "SinOscSynthBend"
+    # n "<as3,as4,as5>" # hpf 800 # lpf 900
+    # sustain 0.03
+    # pan 1
+    # gain (range 1.0 1.1 rand)
+  d4
+    $ when (<8) (|* gain 0)
+    $ when ((/=0).(flip mod 8)) (|* gain 0)
+    $ ((1/8)<~)
+    $ mix ((|+ n 12).(|* gain 0.6))
+    $ s "[[zure!3 ~]~] ~ ~ ~"
+    # n "[[fs5 g5 a5 ~]~]*4"
+    # sustain 0.3
+    # lpf 1800
+    # room 0.2
+    # pingpongt (3/16) # pingpongfb 0.6 # pingpong 0.8
+    # gain 0.8 # pan 0.7
+  d5
+    $ jux (0.003 ~>)
+    $ s "bassSynth"
+    # n "<<d2,d3> <g1,g2,g3>>"
+    # sustain ((*(100/bpm)) <$> "4.4")
+    # shape 0.25
+    # hpf 110
+    # gain 0.58
