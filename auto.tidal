@@ -1,69 +1,118 @@
-setcps (83/60/4)
+setcps (85/60/4)
 
-all $ (|+ n (-2)).(|* gain 1.1)
+all $ (|+ n (0)).(|* gain 1.1)
 
 do
-  resetCyclesTo (4-0.05)
+  resetCyclesTo (0-0.05)
   let
-    bpm = 83
+    bpm = 85
+    introSineRhythm =
+      swingBy (1/20) 8
+      $ mix ((|+ n 12).(|* gain 0.73).(# size 0.4))
+      $ sometimesBy 0.3 (jux (rev.(# lpf 200)))
+      $ n "[<<c3,g3> <f2,c3>> [e4 d5]] [<<c3,g3> <f2,c3>> g4 ~g5] [~ d4 <~ <f2,c3>> g4] [~<g5 <c3,g2,[d5|b4|g5]>> ~[b4|e4|e5|f5|b4]]"
+      # s "SinOscSynthBend"
+      # sustain ((*0.8).(*(100/bpm)) <$> "[1.5 1] 1  1 1  1 1.5  1.2 1")
+      # room 0.4 # size 0.5
+      # pingpongt (3/16) # pingpongfb 0.35 # pingpong 0.2
+      # hpf "[150 350] [150 350 350 500] [350 350 150 350] [<500 150> 350]"
+      # gain (range 0.6 0.64 (slow 3 $ rand))
+      # pan (slow 3 $ rand)
+      # vibratoFreq 6 # vibratoDepth 0.12
+    introMelody =
+      (|- n 2)
+      $ mix ((|- n 12).(|* gain 0.5))
+      $ (|* gain 0.57)
+      $ (# freeverb 0.8).(# size 0.9)
+      $ (# sustain 10)
+      $ ((# vibratoFreq 3.5).(# vibratoDepth 0.3))
+      $ ((# tremolorate 3.5).(# tremolodepth 0.1))
+      $ ((# lpf 1000).(# hpf 110))
+      $ when (==4) (const $ s "FastSinSynth ~ ~ FastSinSynth" # n "a6 <fs5,e4>")
+      $ when (==5) (const $ s "~!2 [~FastSinSynth] FastSinSynth" # n "[df6 d6]*4" # gain 0.9)
+      $ when (==6) (const $ s "~ FastSinSynth ~!2" # n "a5")
+      $ when (==7) (const $ s "~ ~ FastSinSynth FastSinSynth*2" # n "~ ~ fs6 [a6 e6]" # gain 0.9)
+      $ when (==8) (const $ s "~ FastSinSynth" # n "<fs5,e4>")
+      $ when (==9) (const $ s "~!2 [~FastSinSynth] FastSinSynth" # n "[df6 d6]*4" # gain 0.9)
+      $ when (==10) (const $ s "~ FastSinSynth" # n "d6 a5" # gain 0.9)
+      $ when (==11) (const $ s "[~FastSinSynth] ~!3" # n "b5" # gain 0.9)
+      $ s "FastSinSynth" # n "~"
+    introClick =
+      fast 16
+      $ when (<=64) (|* gain 0)
+      $ when ((flip elem [14,15]).(flip mod 16)) (|* gain 0)
+      $ when ((/=0).(flip mod 3)) (|* gain 0)
+      $ s "SinOscSynthBend"
+      # n "<af3,af4,af5>" # hpf 800 # lpf 900
+      # sustain 0.03
+      # pan 1
+      # gain 1.07
+    introOrnament1 =
+      when (<8) (|* gain 0)
+      $ when ((/=0).(flip mod 8)) (|* gain 0)
+      $ ((1/8)<~)
+      $ mix ((|+ n 12).(|* gain 0.6))
+      $ s "[[zure!3 ~]~] ~ ~ ~"
+      # n "[[e5 f5 g5 ~]~]*4"
+      # sustain 0.3
+      # lpf 1800
+      # room 0.2
+      # pingpongt (3/16) # pingpongfb 0.6 # pingpong 0.8
+      # gain 0.8 # pan 0.9
+    introBass =
+      jux (0.003 ~>)
+      $ s "bassSynth"
+      # n "<<c2,c3> <f1,f2>>"
+      # sustain ((*(100/bpm)) <$> "4.4")
+      # shape 0.3
+      # hpf "<110 110>"
+      # gain "<0.55 0.55>"
+    bMeloSineRhythm =
+      swingBy (1/20) 8
+      $ mix ((|+ n 12).(|* gain 0.73).(# size 0.4))
+      $ sometimesBy 0.3 (jux (rev.(# lpf 150)))
+      $ n "[<<f2,c3> <g2,d3>> [<g4,d4> c5]] [<<f2,c3> <g2,d3>> g4 ~ <[f5|c5|g5|e5] [b4|g5|d5]>] [~ <d4,a4> <~ <g2,d3>> <d4 b4>] [~<<d5,a4> <g2,d3,[d5|b5|g5]>> ~[c4|d5|e5|f5|c4]]"
+      # s "SinOscSynthBend"
+      # sustain ((*0.8).(*(100/bpm)) <$> "[1.5 1] 1  1 1  1 1.5  1.2 1")
+      # room 0.4 # size 0.5
+      # pingpongt (3/16) # pingpongfb 0.35 # pingpong 0.2
+      # hpf "[150 350] [150 350 350 500] [350 350 150 350] [<500 150> 350]"
+      # lpf 2000
+      # gain (range 0.6 0.64 (slow 5 $ rand))
+      # pan (slow 3 $ rand)
+      # vibratoFreq 6 # vibratoDepth 0.12
+    bMeloBass =
+      jux (0.003 ~>)
+      $ slow 2
+      $ s "bassSynth*2 bassSynth"
+      # n "[<<d1,d2><d1,d2><g1,g2><g1,g2>> <<f1,f2><f1,f2><g1,g2><g1,g2>>] <g1,g2>"
+      # sustain ((*(100/bpm)) <$> "2.2 4.4")
+      # shape 0.3
+      # hpf 110
+      # gain 0.55
   d1
-    $ (|+ n 2)
-    $ swingBy (1/25) 8
-    $ mix ((|+ n 12).(|* gain 0.5).(# size 0.8))
-    $ sometimesBy 0.4 (jux (rev))
-    $ n "[<<c3,g3> <f2,c3>> [e4 d5]] [<<c3,g3> <f2,c3>> g4 ~g5] [~ d4 <~ <f2,c3>> g4] [~<g5,<c3,g2>> ~[b4|d5|e5|f5|b4]]"
-    # s "SinOscSynthBend"
-    # sustain ((*0.8).(*(100/bpm)) <$> "[1.5 1] 1  1 1  1 1.5  1.2 1")
-    # room 0.4 # size 0.5
-    # pingpongt (3/16) # pingpongfb 0.35 # pingpong 0.3
-    # hpf "[150 350] [150 350 350 350] [350 350 150 350] [150 350]"
-    # gain (range 0.62 0.66 (slow 3 $ rand))
-    # pan (range 0.3 0.7 (slow 3 $ rand))
-    # vibratoFreq 8 # vibratoDepth 0.1
+    $ seqP [
+    (0, 20, introSineRhythm),
+    (20, 25, bMeloSineRhythm),
+    (25, 33, introSineRhythm)
+    ]
   d2
-    $ mix ((|- n 12).(|* gain 0.5))
-    $ (|* gain 0.57)
-    $ (# freeverb 0.8).(# size 0.9)
-    $ (# sustain 10)
-    $ ((# vibratoFreq 3.5).(# vibratoDepth 0.3))
-    $ ((# tremolorate 3.5).(# tremolodepth 0.1))
-    $ ((# lpf 1000).(# hpf 110))
-    $ when (==4) (const $ s "FastSinSynth ~ ~ FastSinSynth" # n "a6 <fs5,e4>")
-    $ when (==5) (const $ s "~!2 [~FastSinSynth] FastSinSynth" # n "[df6 d6]*4" # gain 0.9)
-    $ when (==6) (const $ s "~ FastSinSynth ~!2" # n "a5")
-    $ when (==7) (const $ s "~ ~ FastSinSynth FastSinSynth*2" # n "~ ~ fs6 [a6 e6]" # gain 0.9)
-    $ when (==8) (const $ s "~ FastSinSynth" # n "<fs5,e4>")
-    $ when (==9) (const $ s "~!2 [~FastSinSynth] FastSinSynth" # n "[df6 d6]*4" # gain 0.9)
-    $ when (==10) (const $ s "~ FastSinSynth" # n "d6 a5" # gain 0.9)
-    $ when (==11) (const $ s "[~FastSinSynth] ~!3" # n "b5" # gain 0.9)
-    $ s "FastSinSynth" # n "~"
+    $ seqP[
+    (0, 20, introMelody)
+    ]
   d3
-    $ fast 16
-    $ when (<=64) (|* gain 0)
-    $ when ((flip elem [14,15]).(flip mod 16)) (|* gain 0)
-    $ when ((/=0).(flip mod 3)) (|* gain 0)
-    $ s "SinOscSynthBend"
-    # n "<as3,as4,as5>" # hpf 800 # lpf 900
-    # sustain 0.03
-    # pan 1
-    # gain (range 1.0 1.1 rand)
+    $ seqP[
+    (0, 20, introClick),
+    (0, 25, introClick)
+    ]
   d4
-    $ when (<8) (|* gain 0)
-    $ when ((/=0).(flip mod 8)) (|* gain 0)
-    $ ((1/8)<~)
-    $ mix ((|+ n 12).(|* gain 0.6))
-    $ s "[[zure!3 ~]~] ~ ~ ~"
-    # n "[[fs5 g5 a5 ~]~]*4"
-    # sustain 0.3
-    # lpf 1800
-    # room 0.2
-    # pingpongt (3/16) # pingpongfb 0.6 # pingpong 0.8
-    # gain 0.8 # pan 0.7
+    $ seqP[
+    (0, 20, introOrnament1),
+    (21, 33, introOrnament1)
+    ]
   d5
-    $ jux (0.003 ~>)
-    $ s "bassSynth"
-    # n "<<d2,d3> <g1,g2,g3>>"
-    # sustain ((*(100/bpm)) <$> "4.4")
-    # shape 0.25
-    # hpf 110
-    # gain 0.58
+    $ seqP[
+    (0, 20, introBass),
+    (20, 25, bMeloBass),
+    (25, 33, introBass)
+    ]
