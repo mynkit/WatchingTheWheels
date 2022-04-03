@@ -7,7 +7,7 @@ import System.IO (hSetEncoding, stdout, utf8)
 hSetEncoding stdout utf8
 
 -- total latency = oLatency + cFrameTimespan
-tidal <- startTidal (superdirtTarget {oLatency = 0.1, oAddress = "127.0.0.1", oPort = 57120}) (defaultConfig {cFrameTimespan = 1/20})
+tidal <- startTidal (superdirtTarget {oLatency = 0.1, oAddress = "127.0.0.1", oPort = 57120}) (defaultConfig {cFrameTimespan = 1/20,cCtrlAddr = "0.0.0.0", cCtrlPort = 6060})
 
 :{
 let p = streamReplace tidal
@@ -66,6 +66,16 @@ let getState = streamGet tidal
     setS = streamSetS tidal
     setR = streamSetR tidal
     setB = streamSetB tidal
+:}
+
+:{
+capply
+  :: (Ord a1, Num a1) =>
+     Pattern a1
+     -> (Pattern a2 -> Pattern a2) -> Pattern a2 -> Pattern a2
+capply condpat effectpat = every
+    (fmap (\x -> if x > 0 then 1 else 0)
+    (segment 1 condpat)) (effectpat)
 :}
 
 :{
