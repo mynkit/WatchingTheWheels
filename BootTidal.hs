@@ -79,6 +79,17 @@ capply condpat effectpat = every
 :}
 
 :{
+capply'
+  :: (a1 -> Int)
+     -> Pattern a1
+     -> (Pattern a2 -> Pattern a2)
+     -> Pattern a2
+     -> Pattern a2
+capply' func condpat effectpat = every
+    (fmap func (segment 1 condpat)) (effectpat)
+:}
+
+:{
 pingpong = pF "pingpong"
 pingpongt = pF "pingpongt"
 pingpongfb = pF "pingpongfb"
