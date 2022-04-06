@@ -47,7 +47,8 @@ do
       $ s "SinOscSynthBend"
       # n "<af3,af4,af5>" # hpf 1000 # lpf 1100
       # sustain 0.026
-      # theta 0.5 # freeverb 0.2
+      # theta (range (0.4) (0.6) $ fast 5 $ sine)
+      # freeverb 0.2
       # gain 0.9
     introOrnament1 =
       when (<8) (|* gain 0)
@@ -62,14 +63,15 @@ do
       # pingpongt (3/16) # pingpongfb 0.6 # pingpong 0.8
       # gain 1.0 # pan 0.9
     introHiHat =
-      sometimesBy 0.2 (jux(rev))
-      $ sometimesBy 0.38 ((ply "1 2 4 8").(|* gain 0.7))
+      sometimesBy 0.2 (|* gain (choose [1,0.95,0.9,0.85]))
+      $ sometimesBy 0.2 (jux(rev))
+      $ sometimesBy 0.38 ((ply "1 2 4 8").(|* gain 0.75))
       $ sometimesBy 0.4 (mix ((0.25 ~>).(|* gain 0.8)))
       $ while "f t" (sometimesBy 0.4 ((0.125 ~>)))
       $ s "~ hc ~ [[~hc] ~]"
       # theta (range (-0.4) (-0.6) $ fast 3 $ sine)
       # gain 0.75 # freeverb 0.2
-      # lpf 6000
+      # lpf 5000
     introBass =
       jux (0.003 ~>)
       $ s "bassSynth"
@@ -83,6 +85,12 @@ do
       $ jux (0.01 ~>)
       $ s "~ ~ [~ bassSynth] ~" # n "<c2,c3>"
       # sustain "0.8" # gain 0.75 # shape 0.4 # hpf 60
+      # phi (-1)
+    bMeloHeavyBass =
+      when ((flip elem [0,2,3]).(flip mod 4)) (|* gain 0)
+      $ jux (0.01 ~>)
+      $ s "~ ~ [~ bassSynth] ~" # n "<g1,g2>"
+      # sustain "0.8" # gain 0.76 # shape 0.4 # hpf 60
       # phi (-1)
     bMeloSineRhythm =
       swingBy (1/20) 8
@@ -139,7 +147,9 @@ do
   d6
     $ seqP[
     (4, 20, introHeavyBass),
-    (25, 33, introHeavyBass)
+    (20, 25, bMeloHeavyBass),
+    (25, 33, introHeavyBass),
+    (33, 38, bMeloHeavyBass)
     ]
   d7
     $ seqP[
