@@ -96,6 +96,11 @@ pingpongfb = pF "pingpongfb"
 :}
 
 :{
+theta = pF "theta"
+phi = pF "phi"
+:}
+
+:{
 vibratoFreq = pF "vibratoFreq"
 vibratoDepth = pF "vibratoDepth"
 :}
