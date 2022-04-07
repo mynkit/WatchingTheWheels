@@ -1,11 +1,21 @@
 setcps (87/60/4)
 
-all $ (|+ n (0)).(|* gain 1.05)
+all $ (|+ n (0)).(|* gain 1.0)
 
 do
   resetCyclesTo (0-0.05)
   let
     bpm = 87
+    bubble =
+      sometimesBy 0.2 ((# delay 0.7).(# delayt (3/16)).(# delayfb 0.4).(# lock 1))
+      $ sometimesBy 0.1 ((# freeverb 0.7).(# size 0.8))
+      $ sometimesBy 0.2 ((jux(rev)).(|* speed 0.8))
+      $ sometimesBy 0.5 (|* theta (-1))
+      $ sometimesBy 0.2 ((ply "1 2 4 8").(|* gain 0.9))
+      $ s "[~ [bubble bubble?]]*4" # n (irand 8)
+      # theta (choose [0.1,0.2,0,1,0.8,0.9,0.5])
+      # phi (range 0.5 (-0.5) rand)
+      # gain 0.7
     introSineRhythm =
       swingBy (1/20) 8
       $ mix ((|+ n 12).(|* gain 0.9).(# size 0.4))
@@ -18,11 +28,11 @@ do
       # pingpongt (3/16) # pingpongfb 0.35 # pingpong 0.2
       # hpf "70"
       # gain (range 0.55 0.6 (slow 3 $ rand))
-      -- # hpf "[150 200] [150 200 200 200] [200 200 150 200] [<200 150> 200]"
       # pan (slow 3 $ rand)
       # vibratoFreq 6 # vibratoDepth 0.12
     introMelody =
-      (|- n 2)
+      (|* gain 1.1)
+      $ (|- n 2)
       $ mix ((|- n 12).(|* gain 0.5))
       $ (|* gain 0.57)
       $ (# freeverb 0.8).(# size 0.9)
@@ -47,9 +57,17 @@ do
       $ s "SinOscSynthBend"
       # n "<af3,af4,af5>" # hpf 1000 # lpf 1100
       # sustain 0.026
-      # theta (range (0.4) (0.6) $ fast 5 $ sine)
+      # theta (range (0.3) (0.7) $ fast 5 $ sine)
       # freeverb 0.2
-      # gain 0.9
+      # gain (range (0.85) (0.95) $ fast 3 $ rand)
+    introBassDrum =
+      sometimesBy 0.3 ((1/16)<~)
+      $ sometimesBy 0.2 (while "f t" (|* gain 0))
+      $ sometimesBy 0.4 (
+        while "f t" (mix ((|* gain 0.8).((1/16)<~))))
+      $ s "~ click:2 [~ [~click:2]] ~"
+      # gain 1.7 # lpf 270 # hpf 50 # hpq 0.2
+      # pan 0.45
     introOrnament1 =
       when (<8) (|* gain 0)
       $ when ((/=0).(flip mod 8)) (|* gain 0)
@@ -63,15 +81,15 @@ do
       # pingpongt (3/16) # pingpongfb 0.6 # pingpong 0.8
       # gain 1.0 # pan 0.9
     introHiHat =
-      sometimesBy 0.2 (|* gain (choose [1,0.95,0.9,0.85]))
-      $ sometimesBy 0.2 (jux(rev))
-      $ sometimesBy 0.38 ((ply "1 2 4 8").(|* gain 0.75))
-      $ sometimesBy 0.4 (mix ((0.25 ~>).(|* gain 0.8)))
+      sometimesBy 0.25 (|* gain (choose [1,0.95,0.9,0.85]))
+      $ sometimesBy 0.3 (jux(rev))
+      $ sometimesBy 0.4 ((ply "1 2 4 8").(|* gain 0.78))
+      $ sometimesBy 0.45 (mix ((0.25 ~>).(|* gain 0.84)))
       $ while "f t" (sometimesBy 0.4 ((0.125 ~>)))
       $ s "~ hc ~ [[~hc] ~]"
-      # theta (range (-0.4) (-0.6) $ fast 3 $ sine)
-      # gain 0.75 # freeverb 0.2
-      # lpf 5000
+      # theta (range (-0.3) (-0.7) $ fast 3 $ sine)
+      # gain 0.63 # freeverb 0.2
+      # lpf 4000
     introBass =
       jux (0.003 ~>)
       $ s "bassSynth"
@@ -79,18 +97,16 @@ do
       # sustain ((*(100/bpm)) <$> "4.4")
       # shape 0.3
       # hpf "<110 110>"
-      # gain "<0.55 0.55>"
+      # gain "0.65"
     introHeavyBass =
-      whenmod 4 1 (|* gain 0)
-      $ jux (0.01 ~>)
+      every' 2 1 (|* gain 0)
       $ s "~ ~ [~ bassSynth] ~" # n "<c2,c3>"
-      # sustain "0.8" # gain 0.75 # shape 0.4 # hpf 60
+      # sustain "0.8" # gain 0.84 # shape 0.5 # hpf 60
       # phi (-1)
     bMeloHeavyBass =
-      when ((flip elem [0,2,3]).(flip mod 4)) (|* gain 0)
-      $ jux (0.01 ~>)
-      $ s "~ ~ [~ bassSynth] ~" # n "<g1,g2>"
-      # sustain "0.8" # gain 0.76 # shape 0.4 # hpf 60
+      when ((flip elem [0,2]).(flip mod 4)) (|* gain 0)
+      $ s "~ ~ [~ bassSynth] ~" # n "<g1,g2,g3>"
+      # sustain "0.8" # gain 0.75 # shape 0.5 # hpf 60
       # phi (-1)
     bMeloSineRhythm =
       swingBy (1/20) 8
@@ -103,10 +119,8 @@ do
       # scReverb 0.1
       # pingpongt (3/16) # pingpongfb 0.35 # pingpong 0.2
       # hpf "70"
-      # gain (range 0.6 0.64 (slow 5 $ rand))
-      -- # pan (slow 3 $ rand)
-      # theta (range 0.4 (-0.4) (fast 3 $ rand))
-      # phi (range 0.5 (-0.5) rand)
+      # gain (range 0.63 0.65 (slow 5 $ rand))
+      # pan (slow 3 $ rand)
       # vibratoFreq 6 # vibratoDepth 0.12
     bMeloBass =
       jux (0.003 ~>)
@@ -116,7 +130,7 @@ do
       # sustain ((*(100/bpm)) <$> "2.2 4.4")
       # shape 0.3
       # hpf 110
-      # gain 0.55
+      # gain 0.65
   d1
     $ seqP [
     (0, 20, introSineRhythm),
@@ -146,6 +160,7 @@ do
     ]
   d6
     $ seqP[
+    (1, 2, introHeavyBass),
     (4, 20, introHeavyBass),
     (20, 25, bMeloHeavyBass),
     (25, 33, introHeavyBass),
@@ -155,20 +170,19 @@ do
     $ seqP[
     (3, 4, while "t f" (|* gain 0) $ introHiHat),
     (4, 20, introHiHat),
-    (20, 25, introHiHat),
+    (20, 25, (|- up 3) $ introHiHat),
     (25, 33, introHiHat),
-    (33, 38, introHiHat)
+    (33, 38, (|- up 3) $ introHiHat)
     ]
-
-
-d9
-  $ slow 3
-  $ sometimesBy 0.75 (jux (rev))
-  $ ((|> pingpong 0.4).(|> pingpongt (3/16)).(|> pingpongfb 0.5))
-  $ degradeBy 0.4
-  $ s "[~ guitar_clean_chord_c]"
-  # n (wchoose [(0,0.3),(2,0.2),(5,0.2),(7,0.3)])
-  # speed (choose [-1,-2,-4,1])
-  # gain (choose [0.75,0.7,0.6,0.8])
-  # room 0.4
-  # pan (slow 3 $ sine)
+  d8
+    $ seqP[
+    (1, 2, while "t f" (|* gain 0) $ introBassDrum),
+    (2, 20, introBassDrum),
+    (20, 25, introBassDrum),
+    (25, 33, introBassDrum),
+    (33, 38, introBassDrum)
+    ]
+  d9
+    $ seqP[
+    (4, 38, bubble)
+    ]
