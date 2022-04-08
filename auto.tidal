@@ -13,9 +13,9 @@ do
       $ sometimesBy 0.5 (|* theta (-1))
       $ sometimesBy 0.2 ((ply "1 2 4 8").(|* gain 0.9))
       $ s "[~ [bubble bubble?]]*4" # n (irand 8)
-      # theta (choose [0.1,0.2,0,1,0.8,0.9,0.5])
+      # theta (choose [0.1,(-0.2),0,(-1),0.8,(-0.9),0.5,(-0.5)])
       # phi (range 0.5 (-0.5) rand)
-      # gain 0.7
+      # gain 0.95
     introSineRhythm =
       swingBy (1/20) 8
       $ mix ((|+ n 12).(|* gain 0.9).(# size 0.4))
@@ -58,16 +58,16 @@ do
       # n "<af3,af4,af5>" # hpf 1000 # lpf 1100
       # sustain 0.026
       # theta (range (0.3) (0.7) $ fast 5 $ sine)
-      # freeverb 0.2
-      # gain (range (0.85) (0.95) $ fast 3 $ rand)
+      # freeverb 0.5 # size 0.4
+      # gain (range (0.85) (0.93) $ fast 3 $ rand)
     introBassDrum =
       sometimesBy 0.3 ((1/16)<~)
       $ sometimesBy 0.2 (while "f t" (|* gain 0))
       $ sometimesBy 0.4 (
         while "f t" (mix ((|* gain 0.8).((1/16)<~))))
       $ s "~ click:2 [~ [~click:2]] ~"
-      # gain 1.7 # lpf 270 # hpf 50 # hpq 0.2
-      # pan 0.45
+      # gain 1.8 # lpf 270 # hpf 50 # hpq 0.2
+      # pan 0.5
     introOrnament1 =
       when (<8) (|* gain 0)
       $ when ((/=0).(flip mod 8)) (|* gain 0)
@@ -79,7 +79,7 @@ do
       # lpf 1800
       # room 0.2
       # pingpongt (3/16) # pingpongfb 0.6 # pingpong 0.8
-      # gain 1.0 # pan 0.9
+      # gain 1.0 # pan 0.95
     introHiHat =
       sometimesBy 0.25 (|* gain (choose [1,0.95,0.9,0.85]))
       $ sometimesBy 0.3 (jux(rev))
@@ -88,7 +88,7 @@ do
       $ while "f t" (sometimesBy 0.4 ((0.125 ~>)))
       $ s "~ hc ~ [[~hc] ~]"
       # theta (range (-0.3) (-0.7) $ fast 3 $ sine)
-      # gain 0.63 # freeverb 0.2
+      # gain 0.65 # freeverb 0.2
       # lpf 4000
     introBass =
       jux (0.003 ~>)
@@ -106,7 +106,7 @@ do
     bMeloHeavyBass =
       when ((flip elem [0,2]).(flip mod 4)) (|* gain 0)
       $ s "~ ~ [~ bassSynth] ~" # n "<g1,g2,g3>"
-      # sustain "0.8" # gain 0.75 # shape 0.5 # hpf 60
+      # sustain "0.75" # gain 0.75 # shape 0.5 # hpf 60
       # phi (-1)
     bMeloSineRhythm =
       swingBy (1/20) 8
@@ -184,5 +184,5 @@ do
     ]
   d9
     $ seqP[
-    (4, 38, bubble)
+    (3, 38, bubble)
     ]
