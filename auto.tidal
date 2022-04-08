@@ -1,11 +1,12 @@
-setcps (87/60/4)
+bpm = 87
+
+setcps (bpm/60/4)
 
 all $ (|+ n (0)).(|* gain 1.0)
 
 do
   resetCyclesTo (0-0.05)
   let
-    bpm = 87
     bubble =
       sometimesBy 0.2 ((# delay 0.7).(# delayt (3/16)).(# delayfb 0.4).(# lock 1))
       $ sometimesBy 0.1 ((# freeverb 0.7).(# size 0.8))
@@ -16,20 +17,21 @@ do
       # theta (choose [0.1,(-0.2),0,(-1),0.8,(-0.9),0.5,(-0.5)])
       # phi (range 0.5 (-0.5) rand)
       # gain 0.95
-    introSineRhythm =
+    sinePat nPat =
       swingBy (1/20) 8
       $ mix ((|+ n 12).(|* gain 0.9).(# size 0.4))
       $ sometimesBy 0.3 (jux (rev.(# lpf 200)))
-      $ n "[<<c3,g3> <f2,c3>> [e4 d5]] [<<c3,g3> <f2,c3>> g4 ~g5] [~ d4 <~ <f2,c3>> g4] [~<g5 <c3,g2,[d5|b4|g5]>> ~[b4|e4|e5|f5|b4]]"
+      $ n nPat
       # s "SinOscSynthBend"
       # sustain ((*1.1).(*(100/bpm)) <$> "[1.5 1] 1  1 1  1 1.5  1.2 1")
       # room 0.4 # size 0.5
       # scReverb 0.1
       # pingpongt (3/16) # pingpongfb 0.35 # pingpong 0.2
-      # hpf "70"
-      # gain (range 0.55 0.6 (slow 3 $ rand))
-      # pan (slow 3 $ rand)
-      # vibratoFreq 6 # vibratoDepth 0.12
+      # hpf "70" # gain (range 0.55 0.6 (slow 3 $ rand))
+    introSinePat =
+      sinePat "[<<c3,g3> <f2,c3>> [e4 d5]] [<<c3,g3> <f2,c3>> g4 ~g5] [~ d4 <~ <f2,c3>> g4] [~<g5 <c3,g2,[d5|b4|g5]>> ~[b4|e4|e5|f5|b4]]"
+    bMeloSinePat =
+      (|* gain 1.05) $ sinePat "[<<f2,c3> <g2,d3>> [<g4,d4> c5]] [<<f2,c3> <g2,d3>> g4 ~ <[f5|c5|g5|e5] [b4|g5|d5]>] [~ <d4,a4> <~ <g2,d3>> <d4 b4>] [~<<d5,a4> <g2,d3,[d5|b5|g5]>> ~[c4|d5|e5|f5|c4]]"
     introMelody =
       (|* gain 1.1)
       $ (|- n 2)
@@ -49,7 +51,7 @@ do
       $ when (==10) (const $ s "~ FastSinSynth" # n "d6 a5" # gain 0.9)
       $ when (==11) (const $ s "[~FastSinSynth] ~!3" # n "b5" # gain 0.9)
       $ s "FastSinSynth" # n "~"
-    introClick =
+    click =
       fast 16
       $ (|+ n 11)
       $ when ((flip elem [14,15]).(flip mod 16)) (|* gain 0)
@@ -58,9 +60,9 @@ do
       # n "<af3,af4,af5>" # hpf 1000 # lpf 1100
       # sustain 0.026
       # theta (range (0.3) (0.7) $ fast 5 $ sine)
-      # freeverb 0.5 # size 0.4
+      # freeverb 0.3 # size 0.4
       # gain (range (0.85) (0.93) $ fast 3 $ rand)
-    introBassDrum =
+    bassDrum =
       sometimesBy 0.3 ((1/16)<~)
       $ sometimesBy 0.2 (while "f t" (|* gain 0))
       $ sometimesBy 0.4 (
@@ -68,7 +70,7 @@ do
       $ s "~ click:2 [~ [~click:2]] ~"
       # gain 1.8 # lpf 270 # hpf 50 # hpq 0.2
       # pan 0.5
-    introOrnament1 =
+    ornament1 =
       when (<8) (|* gain 0)
       $ when ((/=0).(flip mod 8)) (|* gain 0)
       $ ((1/8)<~)
@@ -80,7 +82,7 @@ do
       # room 0.2
       # pingpongt (3/16) # pingpongfb 0.6 # pingpong 0.8
       # gain 1.0 # pan 0.95
-    introHiHat =
+    hiHat =
       sometimesBy 0.25 (|* gain (choose [1,0.95,0.9,0.85]))
       $ sometimesBy 0.3 (jux(rev))
       $ sometimesBy 0.4 ((ply "1 2 4 8").(|* gain 0.78))
@@ -106,22 +108,8 @@ do
     bMeloHeavyBass =
       when ((flip elem [0,2]).(flip mod 4)) (|* gain 0)
       $ s "~ ~ [~ bassSynth] ~" # n "<g1,g2,g3>"
-      # sustain "0.75" # gain 0.75 # shape 0.5 # hpf 60
+      # sustain "0.75" # gain 0.72 # shape 0.5 # hpf 60
       # phi (-1)
-    bMeloSineRhythm =
-      swingBy (1/20) 8
-      $ mix ((|+ n 12).(|* gain 0.73).(# size 0.4))
-      $ sometimesBy 0.3 (jux (rev.(# lpf 150)))
-      $ n "[<<f2,c3> <g2,d3>> [<g4,d4> c5]] [<<f2,c3> <g2,d3>> g4 ~ <[f5|c5|g5|e5] [b4|g5|d5]>] [~ <d4,a4> <~ <g2,d3>> <d4 b4>] [~<<d5,a4> <g2,d3,[d5|b5|g5]>> ~[c4|d5|e5|f5|c4]]"
-      # s "SinOscSynthBend"
-      # sustain ((*1.1).(*(100/bpm)) <$> "[1.5 1] 1  1 1  1 1.5  1.2 1")
-      # room 0.4 # size 0.5
-      # scReverb 0.1
-      # pingpongt (3/16) # pingpongfb 0.35 # pingpong 0.2
-      # hpf "70"
-      # gain (range 0.63 0.65 (slow 5 $ rand))
-      # pan (slow 3 $ rand)
-      # vibratoFreq 6 # vibratoDepth 0.12
     bMeloBass =
       jux (0.003 ~>)
       $ slow 2
@@ -131,12 +119,32 @@ do
       # shape 0.3
       # hpf 110
       # gain 0.65
+    hookBass =
+      jux (0.003 ~>)
+      $ slow 2
+      $ s "bassSynth*2 bassSynth*2"
+      # n "[<<f1,f2><f1,f2><g1,g2><fs1,fs1>> <<g1,g2><a1,a2><f1,f2><fs1,fs1>>] [<<c2,c3><d2,d3><a1,a2><f1,f2>> <<a1,a2><c2,c3><g1,g2><gs1,gs2>>]"
+      # sustain ((*(100/bpm)) <$> "2.2")
+      # shape 0.3
+      # hpf 110
+      # gain 0.68
+    atmosphere nPat =
+      (|* gain 0.3)
+      $ s "superhammondBend"
+      # n nPat
+      # sustain ((*(100/bpm)) <$> "2.5")
+      # gain 1.4
+      # voice 2
+      # hpf 100
+      # freeverb 0.6 # size 0.8
+    hookAtmosphere =
+      atmosphere "<<g4,e4,c5><f4,g4,c5><g4,e4,c5><f4,g4,c5><f4,b4,d5><g4,e4,c5><a4,e4,c5,fs4><f4,g4,c5>>"
   d1
     $ seqP [
-    (0, 20, introSineRhythm),
-    (20, 25, bMeloSineRhythm),
-    (25, 33, introSineRhythm),
-    (33, 38, bMeloSineRhythm)
+    (0, 20, introSinePat),
+    (20, 25, bMeloSinePat),
+    (25, 33, introSinePat),
+    (33, 38, bMeloSinePat)
     ]
   d2
     $ seqP[
@@ -144,19 +152,23 @@ do
     ]
   d3
     $ seqP[
-    (4, 38, introClick)
+    (4, 38, click),
+    (38, 46, ((|* freeverb 0.5).(|* gain 0.95)) $ click),
+    (46, 54, ((|* freeverb 0.5).(|* gain 0.95)) $ click)
     ]
   d4
     $ seqP[
-    (0, 20, introOrnament1),
-    (21, 33, introOrnament1)
+    (0, 20, ornament1),
+    (21, 33, ornament1),
+    (46, 54, ornament1)
     ]
   d5
     $ seqP[
     (0, 20, introBass),
     (20, 25, bMeloBass),
     (25, 33, introBass),
-    (33, 38, bMeloBass)
+    (33, 38, bMeloBass),
+    (38, 46, hookBass)
     ]
   d6
     $ seqP[
@@ -168,21 +180,31 @@ do
     ]
   d7
     $ seqP[
-    (3, 4, while "t f" (|* gain 0) $ introHiHat),
-    (4, 20, introHiHat),
-    (20, 25, (|- up 3) $ introHiHat),
-    (25, 33, introHiHat),
-    (33, 38, (|- up 3) $ introHiHat)
+    (3, 4, while "t f" (|* gain 0) $ hiHat),
+    (4, 20, hiHat),
+    (20, 25, (|- up 3) $ hiHat),
+    (25, 33, hiHat),
+    (33, 38, (|- up 3) $ hiHat),
+    (38, 46, hiHat),
+    (46, 54, hiHat)
     ]
   d8
     $ seqP[
-    (1, 2, while "t f" (|* gain 0) $ introBassDrum),
-    (2, 20, introBassDrum),
-    (20, 25, introBassDrum),
-    (25, 33, introBassDrum),
-    (33, 38, introBassDrum)
+    (1, 2, while "t f" (|* gain 0) $ bassDrum),
+    (2, 20, bassDrum),
+    (20, 25, bassDrum),
+    (25, 33, bassDrum),
+    (33, 38, bassDrum),
+    (38, 46, bassDrum),
+    (46, 54, bassDrum)
     ]
   d9
     $ seqP[
-    (3, 38, bubble)
+    (3, 54, bubble)
+    ]
+  d10
+    $ seqP[
+    (38, 46, hookAtmosphere),
+    (46, 53, (|* sustain (range 0.92 1.12 (slow 4 $ rand))) $ atmosphere "<g4,e4,c5>"),
+    (53, 54, (|* sustain (15/16)) $ atmosphere "<g4,e4,c5>")
     ]
