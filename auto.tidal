@@ -57,7 +57,7 @@ do
       $ when (==7) (const $ s "[~FastSinSynth] ~!3" # n "a5" # gain 0.9)
       $ s "FastSinSynth" # n "~"
     hookMelody =
-      (|* gain 1.1)
+      (|* gain 1.04)
       $ mix ((|- n 12).(|* gain 0.5))
       $ (|* gain 0.57)
       $ (# freeverb 0.8).(# size 0.9)
@@ -128,7 +128,7 @@ do
     bMeloHeavyBass =
       when ((flip elem [0,2]).(flip mod 4)) (|* gain 0)
       $ s "~ ~ [~ bassSynth] ~" # n "<g1,g2,g3>"
-      # sustain "0.75" # gain 0.72 # shape 0.5 # hpf 60
+      # sustain "0.75" # gain 0.68 # shape 0.5 # hpf 60
       # phi (-1)
     hookHeavyBass =
       when ((flip elem [0,1,3]).(flip mod 4)) (|* gain 0)
