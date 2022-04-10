@@ -1,6 +1,8 @@
 :set -XOverloadedStrings
 :set prompt ""
 
+import Data.Maybe (isJust, fromJust)
+import Data.List (elemIndex)
 import qualified Sound.Tidal.Tempo as T
 import Sound.Tidal.Context
 import System.IO (hSetEncoding, stdout, utf8)
@@ -131,48 +133,41 @@ let resetCyclesTo n = T.changeTempo (sTempoMV tidal) (\t tempo -> tempo {T.atTim
 :}
 
 :{
-let
-  -- degeesUpC up n: Cメジャーキーで音程nの(up-1)度上の音階を返す
-  degeesUpC 0 n = n
-  degeesUpC up 1 = (degeesUpC up 0) + 1
-  degeesUpC up 3 = (degeesUpC up 2) + 1
-  degeesUpC up 6 = (degeesUpC up 5) + 1
-  degeesUpC up 8 = (degeesUpC up 7) + 1
-  degeesUpC up 10 = (degeesUpC up 9) + 1
-  degeesUpC up 2 = degeesUpC (up+1) 0
-  degeesUpC up 4 = degeesUpC (up+2) 0
-  degeesUpC up 5 = degeesUpC (up+3) 0
-  degeesUpC up 7 = degeesUpC (up+4) 0
-  degeesUpC up 9 = degeesUpC (up+5) 0
-  degeesUpC up 11 = degeesUpC (up+6) 0
-  degeesUpC (-7) 0 = -12
-  degeesUpC (-6) 0 = -10
-  degeesUpC (-5) 0 = -8
-  degeesUpC (-4) 0 = -7
-  degeesUpC (-3) 0 = -5
-  degeesUpC (-2) 0 = -3
-  degeesUpC (-1) 0 = -1
-  degeesUpC 1 0 = 2
-  degeesUpC 2 0 = 4
-  degeesUpC 3 0 = 5
-  degeesUpC 4 0 = 7
-  degeesUpC 5 0 = 9
-  degeesUpC 6 0 = 11
-  degeesUpC 7 0 = 12
-  degeesUpC 8 0 = 14
-  degeesUpC 9 0 = 16
-  degeesUpC 10 0 = 17
-  degeesUpC 11 0 = 19
-  degeesUpC 12 0 = 21
-  degeesUpC 13 0 = 23
-  degeesUpC up n = degeesUpC up (n + 12) - 12
-  -- harmonizer
-  -- c: 0, cs: 1, d: 2, ef: 3, e: 4, f: 5
-  -- fs: 6, g: 7, af: 8, a: 9, bf: 10, b: 11
-  harmonizer key up n
-    | up <= 7 && up >= (-7) = key + degeesUpC up (n - key)
-    | up > 7 = key + degeesUpC 7 (n - key)
-    | up < (-7) = key + degeesUpC (-7) (n - key)
+majorC :: Num a => [a]
+majorC = [0,2,4,5,7,9,11]
+
+majorKey :: (Eq a1, Data.String.IsString a1, Num a2) => a1 -> [a2]
+majorKey key
+  | elem key ["c"] = majorC
+  | elem key ["cs","df"] = map (+1) majorC
+  | elem key ["d"] = map (+2) majorC
+  | elem key ["ds", "ef"] = map (+3) majorC
+  | elem key ["e"] = map (+4) majorC
+  | elem key ["f"] = map (+5) majorC
+  | elem key ["fs", "gf"] = map (+6) majorC
+  | elem key ["g"] = map (+7) majorC
+  | elem key ["gs", "af"] = map (+8) majorC
+  | elem key ["gs", "af"] = map (+9) majorC
+  | elem key ["a"] = map (+10) majorC
+  | elem key ["as", "bf"] = map (+11) majorC
+  | elem key ["b"] = map (+12) majorC
+  | otherwise = error "invalid key name!"
+
+degreesUp :: (Num a, Eq a1, Data.String.IsString a1) => a1 -> Int -> Int -> a
+degreesUp key degree n =
+  noteInScale (majorKey key) (degree+elemScaleIndex key n)
+  where majorScale = majorKey key
+        octave s x = x `div` length s
+        noteInScale s x = (s !! (mod x (length s))) + fromIntegral (12 * octave s x)
+        elemScaleIndex key n
+          | isJust(elemIndex (mod n 12) majorScale) = fromJust(elemIndex (mod n 12) majorScale) + (length majorScale)*(n `div` 12)
+          | otherwise = elemScaleIndex key (n+1)
+
+degreesUp' :: (Num a, Eq a1, Data.String.IsString a1) => a1 -> Int -> Int -> a
+degreesUp' key degree n
+  | degree==0  = degreesUp key 0 n
+  | degree>0   = degreesUp key (degree-1) n
+  | degree<0   = degreesUp key (degree+1) n
 :}
 
 :set prompt "tidal> "
