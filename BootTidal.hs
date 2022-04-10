@@ -136,27 +136,30 @@ let resetCyclesTo n = T.changeTempo (sTempoMV tidal) (\t tempo -> tempo {T.atTim
 majorC :: Num a => [a]
 majorC = [0,2,4,5,7,9,11]
 
-majorKey :: (Eq a1, Data.String.IsString a1, Num a2) => a1 -> [a2]
-majorKey key
-  | elem key ["c"] = majorC
-  | elem key ["cs","df"] = map (+1) majorC
-  | elem key ["d"] = map (+2) majorC
-  | elem key ["ds", "ef"] = map (+3) majorC
-  | elem key ["e"] = map (+4) majorC
-  | elem key ["f"] = map (+5) majorC
-  | elem key ["fs", "gf"] = map (+6) majorC
-  | elem key ["g"] = map (+7) majorC
-  | elem key ["gs", "af"] = map (+8) majorC
-  | elem key ["gs", "af"] = map (+9) majorC
-  | elem key ["a"] = map (+10) majorC
-  | elem key ["as", "bf"] = map (+11) majorC
-  | elem key ["b"] = map (+12) majorC
+minorC :: Num a => [a]
+minorC = [0,2,3,5,7,8,10]
+
+scaleKey :: (Eq a, Data.String.IsString a, Num b) => a -> [b] -> [b]
+scaleKey key scaleC
+  | elem key ["c"] = scaleC
+  | elem key ["cs","df"] = map (+1) scaleC
+  | elem key ["d"] = map (+2) scaleC
+  | elem key ["ds", "ef"] = map (+3) scaleC
+  | elem key ["e"] = map (+4) scaleC
+  | elem key ["f"] = map (+5) scaleC
+  | elem key ["fs", "gf"] = map (+6) scaleC
+  | elem key ["g"] = map (+7) scaleC
+  | elem key ["gs", "af"] = map (+8) scaleC
+  | elem key ["gs", "af"] = map (+9) scaleC
+  | elem key ["a"] = map (+10) scaleC
+  | elem key ["as", "bf"] = map (+11) scaleC
+  | elem key ["b"] = map (+12) scaleC
   | otherwise = error "invalid key name!"
 
 degreesUp :: (Num a, Eq a1, Data.String.IsString a1) => a1 -> Int -> Int -> a
 degreesUp key degree n =
   noteInScale (majorScale) (degree+elemScaleIndex n)
-  where majorScale = majorKey key
+  where majorScale = scaleKey key majorC
         octave s x = x `div` length s
         noteInScale s x = (s !! (mod x (length s))) + fromIntegral (12 * octave s x)
         elemScaleIndex n
