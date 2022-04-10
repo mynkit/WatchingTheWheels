@@ -33,7 +33,7 @@ do
     bMeloSinePat =
       (|* gain 1.05) $ sinePat "[<<f2,c3> <g2,d3>> [<g4,d4> c5]] [<<f2,c3> <g2,d3>> g4 ~ <[f5|c5|g5|e5] [b4|g5|d5]>] [~ <d4,a4> <~ <g2,d3>> <d4 b4>] [~<<d5,a4> <g2,d3,[d5|b5|g5]>> ~[c4|d5|e5|f5|c4]]"
     hookSinePat =
-      when (==3) (const $ sinePat (harmonizer 0 1 <$> "[<<f2,c3><c3,g3>> [e4 d5]] [<<f2,c3><c3,g3>> g4 ~g5] [~ d4 <<f2,c3>~> g4] [~<g5 <c3,g2,[d5|b4|g5]>> ~[b4|e4|e5|f5|b4]]"))
+      when (==3) (const $ sinePat (degreesUp "c" 1 <$> "[<<f2,c3><c3,g3>> [e4 d5]] [<<f2,c3><c3,g3>> g4 ~g5] [~ d4 <<f2,c3>~> g4] [~<g5 <c3,g2,[d5|b4|g5]>> ~[b4|e4|e5|f5|b4]]"))
       $ when (==4) (|- n 5)
       $ when (==6) (const $ sinePat "[<c3,a3> [fs4 d5]] [<c3,a3> a4 ~a5] [~ d4 ~ a4] [~g5 ~e5]")
       $ when (==7) (while "f t" (|- n 5))
