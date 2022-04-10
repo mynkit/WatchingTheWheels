@@ -155,13 +155,13 @@ majorKey key
 
 degreesUp :: (Num a, Eq a1, Data.String.IsString a1) => a1 -> Int -> Int -> a
 degreesUp key degree n =
-  noteInScale (majorScale) (degree+elemScaleIndex key n)
+  noteInScale (majorScale) (degree+elemScaleIndex n)
   where majorScale = majorKey key
         octave s x = x `div` length s
         noteInScale s x = (s !! (mod x (length s))) + fromIntegral (12 * octave s x)
-        elemScaleIndex key n
+        elemScaleIndex n
           | isJust(elemIndex (mod n 12) majorScale) = fromJust(elemIndex (mod n 12) majorScale) + (length majorScale)*(n `div` 12)
-          | otherwise = elemScaleIndex key (n+1)
+          | otherwise = elemScaleIndex (n+1)
 
 degreesUp' :: (Num a, Eq a1, Data.String.IsString a1) => a1 -> Int -> Int -> a
 degreesUp' key degree n
